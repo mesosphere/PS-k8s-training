@@ -130,11 +130,11 @@ If you need to get this information later, you can execute the command below:
 konvoy get ops-portal
 ```
 
-![Konvoy UI](images/konvoy-ui.png)
+![Konvoy UI](../images/konvoy-ui.png)
 
 Click on the `Kubernetes Dashboard` icon to open it.
 
-![Kubernetes Dashboard](images/kubernetes-dashboard.png)
+![Kubernetes Dashboard](../images/kubernetes-dashboard.png)
 
 To configure kubectl to manage your cluster, you simply need to run the following command:
 
@@ -205,11 +205,11 @@ To access the Grafana UI, click on the `Grafana Metrics` icon on the Konvoy UI.
 
 Take a look at the different Dashboards available.
 
-![Grafana UI](images/grafana.png)
+![Grafana UI](../images/grafana.png)
 
 You can also access the Prometheus UI to see all the metrics available by clicking on the `Prometheus` icon on the Konvoy UI.
 
-![Prometheus UI](images/prometheus.png)
+![Prometheus UI](../images/prometheus.png)
 
 The KUDO Kafka operator comes by default the JMX Exporter agent enabled.
 
@@ -229,15 +229,15 @@ In the Grafana UI, click on the + sign on the left and select `Import`.
 
 Copy the content of this [file](https://raw.githubusercontent.com/kudobuilder/operators/master/repository/kafka/docs/v0.1/resources/grafana-dashboard.json) as shown in the picture below.
 
-![Grafana import](images/grafana-import.png)
+![Grafana import](../images/grafana-import.png)
 
 Click on `Load`.
 
-![Grafana import data source](images/grafana-import-data-source.png)
+![Grafana import data source](../images/grafana-import-data-source.png)
 
 Select `Prometheus` in the `Prometheus` field and click on `Import`.
 
-![Grafana Kafka](images/grafana-kafka.png)
+![Grafana Kafka](../images/grafana-kafka.png)
 
 ## 5. Konvoy logging/debugging
 
@@ -245,7 +245,7 @@ In Konvoy, all the logs are stored in an Elasticsearch cluster and exposed throu
 
 To access the Kibana UI, click on the `Kibana Logs` icon on the Konvoy UI.
 
-![Kibana UI](images/kibana.png)
+![Kibana UI](../images/kibana.png)
 
 By default, it only shows the logs for the latest 15 minutes.
 
@@ -253,7 +253,7 @@ Click on the top right corner and select `Last 24 hours`.
 
 Then, search for `redis`:
 
-![Kibana Redis](images/kibana-redis.png)
+![Kibana Redis](../images/kibana-redis.png)
 
 You'll see all the logs related to the redis Pod and Service you deployed previously.
 
@@ -296,7 +296,7 @@ EOF
 ```
 * 4th, Now check Ingress configure in Traefik
 
-![Traefik nginx](images/trafik_nginx.png)
+![Traefik nginx](../images/trafik_nginx.png)
 
 The `Traefik dashboard` indicates the nginx application is ready to receive traffic but if you try access nginx with URL listed below, you will notice `404 Not Found` error like:
 
@@ -306,11 +306,11 @@ curl -k https://$(kubectl get svc traefik-kubeaddons -n kubeaddons --output json
 
 Don't forget the trailing slash at the end of the URL. Otherwise, you won't generate a 404 error.
 
-![Traefik nginx](images/trafik_404.png)
+![Traefik nginx](../images/trafik_404.png)
 
 Let's troubleshoot this failure with Konvoy Kibana.
 
-![Kibana nginx](images/kibana_nginx.png)
+![Kibana nginx](../images/kibana_nginx.png)
 
 With Konvoy Kibana's near real time log collection and indexing, we can easily identify the ingress traffic was eventually handled by a pod `kubernetes.pod_name:nginx-755464dd6c-dnvp9` in nginx service. The log also gave us more information on the failure, `"GET /applications/nginx/ HTTP/1.1" 404`, which tell us that nginx can't find resource at path `/applications/nginx/`.
 
@@ -516,91 +516,3 @@ konvoy down --yes
 The konvoy down command then begins removing cluster resources by deleting load balancers, security groups and volumes. It deletes these resources using the AWS API to ensure they are deleted quickly.
 
 After konvoy down removes these resources, it uses Terraform to delete the resources created by the konvoy up command and Terraform provisioning.
-
-
-## Appendix 1. Setting up an external identity provider
-
-Your Konvoy cluster contains a Dex instance which serves as an identity broker and allows you to integrate with Google's OAuth.
-
-Google's OAuth 2.0 APIs can be used for both authentication and authorization.
-
-Go to [Google’s developer console](https://console.developers.google.com/) and create a project.
-
-Select that project.
-
-In the Credentials tab of that project start with setting up the OAuth consent screen.
-
-Indicate an `Application name` and add the DNS name via which your Konvoy cluster is publicly reachable (`<public-cluster-dns-name>`) into `Authorized domains`.
-
-Save the OAuth consent screen configuration.
-
-Press Create credentials, select OAuth client ID, and then Web application.
-
-Under Authorized redirect URIs insert `https://<public-cluster-dns-name>/dex/callback`.
-
-![google-idp-application](images/google-idp-application.png)
-
-Don't forget to hit ENTER when setting up oauth in the google console for the redirect url and other fields, otherwise the values are not saved if you just hit the save button.
-
-Save the configuration and note down the client ID and the client secret.
-
-![google-idp-credentials](images/google-idp-credentials.png)
-
-Run the following command (after inserting your email address) to provide admin rights to your Google account:
-
-```bash
-cat <<EOF | kubectl create -f -
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: admin-binding
-subjects:
-- kind: User
-  name: <your Google email>
-roleRef:
-  kind: ClusterRole
-  name: cluster-admin
-  apiGroup: rbac.authorization.k8s.io
-EOF
-```
-
-
-Edit the `cluster.yaml` file and update the `dex` section as below:
-
-```
-    - name: dex
-      enabled: true
-      values: |
-        config:
-          connectors:
-          - type: oidc
-            id: google
-            name: Google Accounts
-            config:
-              issuer: https://accounts.google.com
-              clientID: <client ID>
-              clientSecret: <client secret>
-              redirectURI: https://<public-cluster-dns-name>/dex/callback
-              userIDKey: email
-              userNameKey: email
-```
-
-And run `konvoy up --yes` again to apply the change.
-
-When the update is finished, Go to `https://<public-cluster-dns-name>/token` and login with your Google Account.
-
-![google-idp-token](images/google-idp-token.png)
-
-Follow the instructions in the page, but use the command below in the second step to get the right value for the `server` parameter:
-
-```bash
-kubectl config set-cluster kubernetes-cluster \
-    --certificate-authority=${HOME}/.kube/certs/kubernetes-cluster/k8s-ca.crt \
-    --server=$(kubectl config view | grep server | awk '{ print $2 }')
-```
-
-Run the following command to check that you can administer the Kubernetes cluster with your Google account:
-
-```bash
-kubectl get nodes
-```
