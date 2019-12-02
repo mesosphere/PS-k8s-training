@@ -313,7 +313,7 @@ kubectl exec -i $pod cat /data/out.txt
 ```
 
 
-## 3. Deploy portworx for persistent storage
+## 3. Portworx
 # Leverage persistent storage using Portworx
 
 Portworx is a Software Defined Software that can use the local storage of the DC/OS nodes to provide High Available persistent storage to both Kubernetes pods and DC/OS services.
@@ -534,7 +534,7 @@ kubectl exec -i pvpod cat /test-portworx-volume/test
 
 
 
-## 6. Deploy Jenkins using Helm
+## 4. Deploy Jenkins using Helm
 
 Helm is a tool for managing Kubernetes charts. Charts are packages of pre-configured Kubernetes resources.
 
@@ -621,7 +621,7 @@ Go to the URL displayed to access Jenkins.
 
 Login with the user `admin` and the password `password`.
 
-## 7. Deploy Apache Kafka using KUDO
+## 5. Deploy Apache Kafka using KUDO
 
 The Kubernetes Universal Declarative Operator (KUDO) is a highly productive toolkit for writing operators for Kubernetes. Using KUDO, you can deploy your applications, give your users the tools they need to operate it, and understand how it's behaving in their environments — all without a PhD in Kubernetes.
 
