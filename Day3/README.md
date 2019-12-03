@@ -433,7 +433,7 @@ spec:
 EOF
 ```
 
-# Deploy Istio using Konvoy
+# 5. Deploy Istio using Konvoy
 
 Cloud platforms provide a wealth of benefits for the organizations that use them.
 There’s no denying, however, that adopting the cloud can put strains on DevOps teams.
@@ -536,22 +536,65 @@ NAME                                                   CDS        LDS        EDS
 istio-ingressgateway-6db99c76dc-zqb2s.istio-system     SYNCED     SYNCED     SYNCED     NOT SENT     istio-pilot-7684976f67-vxgbc     1.3.3
 ```
 
-## 1. Deploy Bookinfo Application in Istio-Enabled Cluster
+## 6. Deploy Bookinfo Application 
 
 ```
 This example deploys a sample application composed of four separate microservices used to demonstrate various Istio features.
 The application displays information about a book, similar to a single catalog entry of an online book store.
 Displayed on the page is a description of the book, book details (ISBN, number of pages, and so on), and a few book reviews.
 
-Run the following commands to deploy the bookinfo application:
+### Download the Istio-repo
+Go to the Istio release page to download the installation file corresponding to your OS. Alternatively, on a macOS or Linux system, you can run the following command to download and extract the latest release automatically:
 
+Run the following commands to deploy the bookinfo application:
 ```bash
-kubectl apply -f <(istioctl kube-inject -f samples/bookinfo/platform/kube/bookinfo.yaml)
-kubectl apply -f samples/bookinfo/networking/bookinfo-gateway.yaml
+curl -L https://istio.io/downloadIstio | sh -
+```
+Move into the Istio directory 
+```bash
+cd istio-1.4.0
+```
+The default Istio installation uses automatic sidecar injection. Label the namespace that will host the application with istio-injection=enabled:
+```bash
+kubectl label namespace default istio-injection=enabled
+
+Deploy your application using the kubectl command:
+```
+```bash
+kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
+```
+The command launches all four services shown in the bookinfo application architecture diagram. All 3 versions of the reviews service, v1, v2, and v3, are started.
+
+Confirm all services and pods are correctly defined and running:
+```bash
+kubectl get services
+NAME                       CLUSTER-IP   EXTERNAL-IP   PORT(S)              AGE
+details                    10.0.0.31    <none>        9080/TCP             6m
+kubernetes                 10.0.0.1     <none>        443/TCP              7d
+productpage                10.0.0.120   <none>        9080/TCP             6m
+ratings                    10.0.0.15    <none>        9080/TCP             6m
+reviews                    10.0.0.170   <none>        9080/TCP             6m
+```
+and
+```bash
+kubectl get pods
+NAME                                        READY     STATUS    RESTARTS   AGE
+details-v1-1520924117-48z17                 2/2       Running   0          6m
+productpage-v1-560495357-jk1lz              2/2       Running   0          6m
+ratings-v1-734492171-rnr5l                  2/2       Running   0          6m
+reviews-v1-874083890-f0qf0                  2/2       Running   0          6m
+reviews-v2-1343845940-b34q5                 2/2       Running   0          6m
+reviews-v3-1813607990-8ch52                 2/2       Running   0          6m
 ```
 
-Finally, run the following command to get the URL of the Load Balancer created on AWS for this service:
 
+To confirm that the Bookinfo application is running, send a request to it by a curl command from some pod, for example from ratings:
+```bash
+kubectl exec -it $(kubectl get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}') -c ratings -- curl productpage:9080/productpage | grep -o "<title>.*</title>"
+
+<title>Simple Bookstore App</title>
+```
+Get the URL for accessing the Bookinfo App
 ```bash
 kubectl get svc istio-ingressgateway -n istio-system
 
@@ -571,8 +614,17 @@ echo "Open http://$(kubectl get svc istio-ingressgateway -n istio-system --outpu
 
 Go to the corresponding URL to access the BookInfo Sample app.
 
-![Istio](images/istio.png)
+![Istio](../images/istio.png)
 
-You can then follow the other steps described in the Istio documentation to understand the different Istio features:
 
-[https://istio.io/docs/examples/bookinfo/](https://istio.io/docs/examples/bookinfo/)
+## 7. Istio-Traffic-Management
+
+### Request Routing
+
+### Fault Injection
+
+### Traffic Shifting
+
+### Circuit Breaking
+
+### Visualizing Mesh
