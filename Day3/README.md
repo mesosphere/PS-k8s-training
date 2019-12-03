@@ -618,7 +618,7 @@ Go to the corresponding URL to access the BookInfo Sample app.
 
 ## 7. Istio-Traffic-Management
 
-### Request Routing
+### A. Request Routing
 
 Ensure you default destination rules 
 ```bash
@@ -755,13 +755,13 @@ You have successfully configured Istio to route traffic based on user identity.
 kubectl delete -f samples/bookinfo/networking/virtual-service-all-v1.yaml
 ```
 
-### Traffic Shifting
+### B. Traffic Shifting
 This task shows you how to gradually migrate traffic from one version of a microservice to another. For example, you might migrate traffic from an older version to a new version.
 
 A common use case is to migrate traffic gradually from one version of a microservice to another. In Istio, you accomplish this goal by configuring a sequence of rules that route a percentage of traffic to one service or another. In this task, you will send 50% of traffic to reviews:v1 and 50% to reviews:v3. Then, you will complete the migration by sending 100% of traffic to reviews:v3.
 
 
-### Apply weight-based routing
+#### Apply weight-based routing
 If you haven’t already applied destination rules, follow the instructions in Apply Default Destination Rules.
 To get started, run this command to route all traffic to the v1 version of each microservice.
 ```bash
@@ -815,7 +815,7 @@ In this task you migrated traffic from an old to new version of the reviews serv
 With Istio, you can allow the two versions of the reviews service to scale up and down independently, without affecting the traffic distribution between them.
 
 For more information about version routing with autoscaling, check out the blog article Canary Deployments using Istio.
-### Request Timeouts 
+### C. Request Timeouts 
 
 A timeout for http requests can be specified using the timeout field of the route rule. By default, the timeout is disabled, but in this task you override the reviews service timeout to 1 second. To see its effect, however, you also introduce an artificial 2 second delay in calls to the ratings service.
 
@@ -901,7 +901,7 @@ One more thing to note about timeouts in Istio is that in addition to overriding
 kubectl delete -f samples/bookinfo/networking/virtual-service-all-v1.yaml
 ```
 
-### Visualizing Mesh
+### D. Visualizing Mesh
 This task shows you how to visualize different aspects of your Istio mesh.
 
 As part of this task, you install the Kiali add-on and use the web-based graphical user interface to view service graphs of the mesh and your Istio configuration objects. Lastly, you use the Kiali Public API to generate graph data in the form of consumable JSON.
@@ -909,8 +909,7 @@ As part of this task, you install the Kiali add-on and use the web-based graphic
 This task does not cover all of the features provided by Kiali. To learn about the full set of features it 
 supports, see the Kiali website.
 ```
-![alt text]()
-![alt text]()
+
 
 #### Generating a service graph
 To verify the service is running in your cluster, run the following command:
