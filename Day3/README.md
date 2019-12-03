@@ -906,6 +906,57 @@ This task shows you how to visualize different aspects of your Istio mesh.
 
 As part of this task, you install the Kiali add-on and use the web-based graphical user interface to view service graphs of the mesh and your Istio configuration objects. Lastly, you use the Kiali Public API to generate graph data in the form of consumable JSON.
 ```
-This task does not cover all of the features provided by Kiali. To learn about the full set of features it supports, see the Kiali website.
+This task does not cover all of the features provided by Kiali. To learn about the full set of features it 
+supports, see the Kiali website.
 ```
-# ![alt text]https://istio.io/docs/tasks/observability/kiali/kiali-overview.png()
+![alt text]()
+![alt text]()
+
+#### Generating a service graph
+To verify the service is running in your cluster, run the following command:
+```bash
+$ kubectl -n istio-system get svc kiali
+```
+To determine the Bookinfo URL, follow the instructions to determine the Bookinfo ingress GATEWAY_URL.
+
+To send traffic to the mesh, you have three options
+
+Visit http://$GATEWAY_URL/productpage in your web browser
+Use the following command multiple times:
+```bash
+curl http://$GATEWAY_URL/productpage
+```
+If you installed the watch command in your system, send requests continually with:
+```bash
+watch -n 1 curl -o /dev/null -s -w %{http_code} $GATEWAY_URL/productpage
+```
+To open the Kiali UI, execute the following command in your Kubernetes environment:
+```bash
+$ istioctl dashboard kiali
+```
+View the overview of your mesh in the Overview page that appears immediately after you log in. The Overview page displays all the namespaces that have services in your mesh. The following screenshot shows a similar page:
+![alt text](https://istio.io/docs/tasks/observability/kiali/kiali-overview.png)
+
+To view a namespace graph, click on the bookinfo graph icon in the Bookinfo namespace card. The graph icon is in the lower left of the namespace card and looks like a connected group of circles. The page looks similar to:
+![alt text](https://istio.io/docs/tasks/observability/kiali/kiali-graph.png)
+
+To view a summary of metrics, select any node or edge in the graph to display its metric details in the summary details panel on the right.
+
+To view your service mesh using different graph types, select a graph type from the Graph Type drop down menu. There are several graph types to choose from: *App, Versioned App, Workload, Service.*
+* The App graph type aggregates all versions of an app into a single graph node. The following example shows a single reviews node representing the three versions of the reviews app.
+![alt text](https://istio.io/docs/tasks/observability/kiali/kiali-app.png)
+
+
+* The Versioned App graph type shows a node for each version of an app, but all versions of a particular app are grouped together. The following example shows the reviews group box that contains the three nodes that represents the three versions of the reviews app.
+![alt text](https://istio.io/docs/tasks/observability/kiali/kiali-versionedapp.png)
+
+* The Workload graph type shows a node for each workload in your service mesh. This graph type does not require you to use the app and version labels so if you opt to not use those labels on your components, this is the graph type you will use.
+![alt text](https://istio.io/docs/tasks/observability/kiali/kiali-workload.png)
+
+* The Service graph type shows a node for each service in your mesh but excludes all apps and workloads from the graph.
+![alt text](https://istio.io/docs/tasks/observability/kiali/kiali-services.png)
+
+#### About Kiali
+To generate JSON files representing the graphs and other metrics, health, and configuration information, you can access the Kiali Public API. For example, point your browser to $KIALI_URL/api/namespaces/graph?namespaces=bookinfo&graphType=app to get the JSON representation of your graph using the app graph type.
+
+The Kiali Public API is built on top of Prometheus queries and depends on the standard Istio metric configuration. It also makes Kubernetes API calls to obtain additional details about your services. For the best experience using Kiali, use the metadata labels app and version on your application components. As a template, the Bookinfo sample application follows this convention.
