@@ -142,11 +142,6 @@ Click on the `Kubernetes Dashboard` icon to open it.
 
 ![Kubernetes Dashboard](../images/kubernetes-dashboard.png)
 
-To configure kubectl to manage your cluster, you simply need to run the following command:
-
-```
-konvoy apply kubeconfig
-```
 
 You can check that the Kubernetes cluster has been deployed using the version `1.15.2` with 3 control nodes and 5 workers nodes
 
@@ -165,6 +160,7 @@ ip-10-0-193-118.us-west-2.compute.internal   Ready    master   11m   v1.15.2
 ip-10-0-193-232.us-west-2.compute.internal   Ready    master   12m   v1.15.2
 ip-10-0-194-21.us-west-2.compute.internal    Ready    master   13m   v1.15.2
 ```
+
 
 ## 2. Expose a Kubernetes Application using a Service Type Load Balancer (L4)
 
