@@ -1,4 +1,4 @@
-## . Istio-Traffic-Management
+## Istio-Traffic-Management
 
 ### A. Request Routing
 
