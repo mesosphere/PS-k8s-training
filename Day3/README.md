@@ -600,17 +600,58 @@ NAME                   TYPE           CLUSTER-IP    EXTERNAL-IP                 
 istio-ingressgateway   LoadBalancer   10.0.29.241   a682d13086ccf11e982140acb7ee21b7-2083182676.us-west-2.elb.amazonaws.com   15020:30380/TCP,80:31380/TCP,443:31390/TCP,31400:31400/TCP,15029:30756/TCP,15030:31420/TCP,15031:31948/TCP,15032:32061/TCP,15443:31232/TCP   110s
 ```
 
-You need to wait for a few minutes while the Load Balancer is created on AWS and the name resolution in place.
+You need to wait for a few minutes while the Load Balancer is created on AWS and the name resolution in place.(5-15mins depending upon AWS)
 
+#### Determine the ingress IP and port
+Follow these instructions if you have determined that your environment has an external load balancer.
 ```bash
-until nslookup $(kubectl get svc istio-ingressgateway -n istio-system --output jsonpath={.status.loadBalancer.ingress[*].hostname})
-do
-  sleep 1
-done
-echo "Open http://$(kubectl get svc istio-ingressgateway -n istio-system --output jsonpath={.status.loadBalancer.ingress[*].hostname})/productpage to access the BookInfo Sample app"
+export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+
+export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
+
+export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].port}')
+
+export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
 ```
 
-Go to the corresponding URL to access the BookInfo Sample app.
+#### Create a route for bookinfo application 
+Now that the Bookinfo services are up and running, you need to make the application accessible from outside of your Kubernetes cluster, e.g., from a browser. An Istio Gateway is used for this purpose.
+
+Define the ingress gateway for the application:
+```bash
+kubectl apply -f samples/bookinfo/networking/bookinfo-gateway.yaml
+```
+Note: This deploys a Gateway + Virtual service to establish a route to the bookinfo application
+
+
+Confirm the gateway & virtual service has been created:
+```bash
+k get vs,gw
+NAME                                          GATEWAYS             HOSTS   AGE
+virtualservice.networking.istio.io/bookinfo   [bookinfo-gateway]   [*]     41m
+
+NAME                                           AGE
+gateway.networking.istio.io/bookinfo-gateway   41m
+```
+#### External Access to the application
+
+Once you are done with the above steps give it a few mins for the AWS-ELB to provision, name resolution to take place and route updated to the proxies in the mesh. Then run the following commands to validate access
+
+To confirm that the Bookinfo application is accessible from outside the cluster, run the following curl command:
+```bash
+curl -s http://${GATEWAY_URL}/productpage | grep -o "<title>.*</title>"
+```
+To confirm that the Bookinfo application is accessible from outside the cluster, using browser do the following steps:
+```bash
+kubectl get svc istio-ingressgateway -n istio-system
+
+NAME                   TYPE           CLUSTER-IP    EXTERNAL-IP                                                               PORT(S)                                                                                                                                      AGE
+istio-ingressgateway   LoadBalancer   10.0.11.122   a32c15819094e4a14a920331501f12b0-1882016049.us-west-2.elb.amazonaws.com   15020:30405/TCP,80:31380/TCP,443:31390/TCP,31400:31400/TCP,15029:30912/TCP,15030:31276/TCP,15031:31143/TCP,15032:32426/TCP,15443:30178/TCP   42h
+```
+In your browser run hit the AWS-ELB endpoint with path for Bookinfo application like below:
+
+http://a32c15819094e4a14a920331501f12b0-1882016049.us-west-2.elb.amazonaws.com/productpage
+
 
 ![Istio](../images/istio.png)
 
