@@ -204,13 +204,21 @@ Create HPA namespace
 kubectl create namespace hpa-lab 
 
 kubectl config set-context --current --namespace=hpa-lab
+or
+kubens hpa-lab
 ```
 
 Deploy a sample app and Create HPA resources
 ```bash
 kubectl run php-apache --image=k8s.gcr.io/hpa-example --requests=cpu=200m --expose --port=80
 ```
-View the HPA using kubectl. You probably will see <unknown>/50% for 1-2 minutes and then you should be able to see 0%/50%
+
+Create HPA resource that scales when CPU resource exceeds 50% of allocated resource 
+```bash
+kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
+```
+View the HPA using kubectl. You probably will see  unknown/50% for 1-2 minutes and then you should be able to see 0%/50%
+
 ```bash
 kubectl get hpa
 ```
