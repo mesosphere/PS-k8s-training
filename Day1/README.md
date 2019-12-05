@@ -60,6 +60,8 @@ There are many ways to deploy a kubernetes cluster from a fully manual procedure
 Change directories into the lab directory:
 
 ```
+mkdir ~/lab
+
 cd ~/lab
 ```
 
@@ -195,6 +197,47 @@ ip-10-0-195-21.us-west-2.compute.internal    Ready    master   47m    v1.15.2
 
 
 ## 3. Scale a k8s Application using HPA
+The following command will create a Horizontal Pod Autoscaler that maintains between 1 and 10 replicas of the Pods controlled by the PHP-apache deployment we created in the first step of these instructions. Roughly speaking, HPA will increase and decrease the number of replicas (via the deployment) to maintain an average CPU utilization across all Pods of 50% (since each pod requests 200 milli-cores by kubectl run, this means average CPU usage of 100 milli-cores).
+
+Create HPA namespace
+```bash
+kubectl create namespace hpa-lab 
+
+kubectl config set-context --current --namespace=hpa-lab
+```
+
+Deploy a sample app and Create HPA resources
+```bash
+kubectl run php-apache --image=k8s.gcr.io/hpa-example --requests=cpu=200m --expose --port=80
+```
+View the HPA using kubectl. You probably will see <unknown>/50% for 1-2 minutes and then you should be able to see 0%/50%
+```bash
+kubectl get hpa
+```
+
+Increase the load by hitting the App K8S service from several locations.
+```bash
+kubectl run -i --tty load-generator --image=busybox /bin/sh
+```
+Execute a while loop to continue getting http:///php-apache
+```bash
+while true; do wget -q -O - http://php-apache; done
+```
+The HPA should now start to scale the number of Pods in the deployment as the load increases. This scaling takes place according to what is specified in the HPA resources. At some point, the new Pods fall into a ‘pending state’ while waiting for extra resources.
+
+Within a minute or so, we should see the higher CPU load by executing:
+```bash
+kubectl get hpa -w
+```
+Here, CPU consumption has increased to the request. As a result, the deployment was resized to replicas:
+```bash
+kubectl get deployment php-apache
+```
+Note : This would take time a minute or two for the Scaling up and Downscale has default cool down time of 5 mins 
+
+You will see HPA scale the pods from 1 up to our configured maximum (10) until the CPU average is below our target (50%)
+
+
 
 ## 4. Konvoy monitoring
 
