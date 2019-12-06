@@ -28,6 +28,7 @@ For Mac and Linux clients you must change the permission on the file.
 ```
 chmod 400 id_rsa_student#
 ```
+
 ```
 ssh -i id_rsa_student# centos@jumpserver-ip-address
 ```

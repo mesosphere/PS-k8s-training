@@ -314,7 +314,7 @@ kubectl exec -i $pod cat /data/out.txt
 
 
 ## 3. Portworx
-# Leverage persistent storage using Portworx
+#### Leverage persistent storage using Portworx
 
 Portworx is a Software Defined Software that can use the local storage of the DC/OS nodes to provide High Available persistent storage to both Kubernetes pods and DC/OS services.
 
@@ -335,8 +335,6 @@ Set the following environment variables:
 export CLUSTER=$(grep -m 1 tags.kubernetes.io/cluster state/terraform.tfstate | awk '{ print $2 }' | cut -d\" -f2)
 export REGION=us-west-2
 ```
-
-Update the `~/.aws/credentials` file with the new information provided by your instructor.
 
 Execute the following commands to create and attach an EBS volume to each Kubelet.
 
@@ -395,7 +393,7 @@ You need to wait for a few minutes while the Load Balancer is created on AWS and
 ```bash
 until nslookup $(kubectl -n kube-system get svc px-lighthouse --output jsonpath={.status.loadBalancer.ingress[*].hostname})
 do
-  sleep 1
+  sleep 5
 done
 echo "Open http://$(kubectl -n kube-system get svc px-lighthouse --output jsonpath={.status.loadBalancer.ingress[*].hostname}) to access the Portworx UI"
 ```
@@ -542,8 +540,13 @@ You can find many charts on the [Helm Hub](https://hub.helm.sh/).
 
 In this lab, we'll deploy the [Jenkins Helm chart](https://hub.helm.sh/charts/stable/jenkins).
 
-To deploy the chart, you need to run the following command:
 
+Initialize helm client on your workstation:
+
+```bash
+helm init
+```
+To deploy the chart, you need to run the following command:
 ```bash
 helm install stable/jenkins --name jenkins --version 1.5.0 --set master.adminPassword=password
 ```
@@ -612,7 +615,7 @@ You need to wait for a few minutes while the Load Balancer is created on AWS and
 ```bash
 until nslookup $(kubectl get svc jenkins --output jsonpath={.status.loadBalancer.ingress[*].hostname})
 do
-  sleep 1
+  sleep 5
 done
 echo "Open http://$(kubectl get svc jenkins --output jsonpath={.status.loadBalancer.ingress[*].hostname}):8080 to access the Jenkins UI"
 ```
