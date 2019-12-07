@@ -212,6 +212,16 @@ Output should be something like below
 ```bash
 customresourcedefinition.apiextensions.k8s.io/sslconfigs.d2iq.com created
 ```
+Check if our CRD exists 
+```bash
+kubectl get crd | grep -i sslconfig
+```
+Output should be something like:
+```bash
+sslconfigs.d2iq.com                                          2019-12-07T23:34:55Z
+```
+
+
 Create Objects using the definition created above
 
 ```bash
@@ -228,6 +238,19 @@ spec:
 EOF
 ```
 Along with the mandatory fields cert, key and domain, we have also stored the information of the provider ( certifying authority ) of the cert.
+
+Check if our crd-objects exists when we query the api-server
+```bash
+kubectl get sslconfig
+```
+Output should be something like:
+```bash
+NAME                   AGE
+sslconfig-disney.com   2m46s
+```
+
+
+
 
 
 ## 3. Scale Masters/Workers of a Konvoy k8s cluster
