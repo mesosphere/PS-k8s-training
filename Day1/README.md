@@ -162,8 +162,76 @@ ip-10-0-193-118.us-west-2.compute.internal   Ready    master   11m   v1.15.2
 ip-10-0-193-232.us-west-2.compute.internal   Ready    master   12m   v1.15.2
 ip-10-0-194-21.us-west-2.compute.internal    Ready    master   13m   v1.15.2
 ```
+## 2. Deploy a Custom Resource Definition
 
-## 2. Scale Masters/Workers of a Konvoy k8s cluster
+In the Kubernetes API, a resource is an endpoint that stores a collection of API objects of a certain kind. For example, the built-in pods’ resource contains a collection of Pod objects. The standard Kubernetes distribution ships with many inbuilt API objects/resources. CRD comes into picture when we want to introduce our own object into the Kubernetes cluster to full fill our requirements. Once we create a CRD in Kubernetes we can use it like any other native Kubernetes object thus leveraging all the features of Kubernetes like its CLI, security, API services, RBAC etc
+
+The custom resource created is also stored in the etcd cluster with proper replication and lifecycle management. CRD allows us to use all the functionalities provided by a Kubernetes cluster for our custom objects and saves us the overhead of implementing them on our own.
+
+
+Create a CRD Definition in the file SSLConfig — CRD.YAML
+```bash
+cd ~/lab
+
+cat << EOF | > crd.yaml
+apiVersion: "apiextensions.k8s.io/v1beta1"
+kind: "CustomResourceDefinition"
+metadata:
+  name: "sslconfigs.d2iq.com"
+spec:
+  group: "d2iq.com"
+  version: "v1alpha1"
+  scope: "Namespaced"
+  names:
+    plural: "sslconfigs"
+    singular: "sslconfig"
+    kind: "SslConfig"
+  validation:
+    openAPIV3Schema:
+      required: ["spec"]
+      properties:
+        spec:
+          required: ["cert","key","domain"]
+          properties:
+            cert:
+              type: "string"
+              minimum: 1
+            key:
+              type: "string"
+              minimum: 1
+            domain:
+              type: "string"
+              minimum: 1
+~
+EOF
+```
+Create the Custom Resource Definition 
+```bash
+kubectl create -f crd.yaml
+```
+Output should be something like below 
+```bash
+customresourcedefinition.apiextensions.k8s.io/sslconfigs.d2iq.com created
+```
+Create Objects using the definition created above
+
+```bash
+cat << EOF | > crd-object.yaml
+apiVersion: "d2iq.com/v1alpha1"
+kind: "SslConfig"
+metadata:
+  name: "sslconfig-disney.com"
+spec:
+  cert: "my cert file"
+  key : "my private  key"
+  domain: "*.disney.com"
+  provider: "digicert"
+EOF
+```
+Along with the mandatory fields cert, key and domain, we have also stored the information of the provider ( certifying authority ) of the cert.
+
+
+## 3. Scale Masters/Workers of a Konvoy k8s cluster
 
 Edit the `cluster.yaml` file to change the worker count from 5 to 6:
 ```
@@ -314,7 +382,16 @@ curl -k https://$(kubectl get svc traefik-kubeaddons -n kubeaddons --output json
 
 Don't forget the trailing slash at the end of the URL. Otherwise, you won't generate a 404 error.
 
+If you would like to see the error in the browser, get the Loadbalancer's endpoint
+```bash
+kubectl get svc traefik-kubeaddons -n kubeaddons --output jsonpath="{.status.loadBalancer.ingress[*].hostname}"
+```
+Output should give you the AWS-ELB endpoint use that in the browser like below:
+https://{endpoint}/applications/nginx/
+
+
 ![Traefik nginx](../images/trafik_404.png)
+
 
 Let's troubleshoot this failure with Konvoy Kibana.
 
@@ -366,7 +443,7 @@ spec:
 ...
   - name: worker
   addons:
-    configVersion: stable-1.15.3-0
+    configVersion: stable-1.15.5
 ...
 ```
 
