@@ -202,7 +202,6 @@ spec:
             domain:
               type: "string"
               minimum: 1
-~
 EOF
 ```
 Create the Custom Resource Definition 
@@ -265,7 +264,7 @@ ip-10-0-195-21.us-west-2.compute.internal    Ready    master   47m    v1.15.2
 ```
 
 
-## 3. Scale a k8s Application using HPA
+## 4. Scale a k8s Application using HPA
 The following command will create a Horizontal Pod Autoscaler that maintains between 1 and 10 replicas of the Pods controlled by the PHP-apache deployment we created in the first step of these instructions. Roughly speaking, HPA will increase and decrease the number of replicas (via the deployment) to maintain an average CPU utilization across all Pods of 50% (since each pod requests 200 milli-cores by kubectl run, this means average CPU usage of 100 milli-cores).
 
 Create HPA namespace
@@ -315,7 +314,7 @@ Note : This would take time a minute or two for the Scaling up and Downscale has
 You will see HPA scale the pods from 1 up to our configured maximum (10) until the CPU average is below our target (50%)
 
 
-## 4. Kubernetes logging/debugging
+## 5. Kubernetes logging/debugging
 
 In Konvoy, all the logs are stored in an Elasticsearch cluster and exposed through Kibana.
 
@@ -333,7 +332,7 @@ Then, search for `redis`:
 
 You'll see all the logs related to the redis Pod and Service you deployed previously.
 
-### 5. Ingress troubleshooting.
+### 6. Ingress troubleshooting.
 
 In this section, we will leverage Konvoy logging to troubleshoot Ingress failure issue.
 
@@ -432,7 +431,7 @@ EOF
 ```
 ![dashboard nginx](../images/trafik_nginx_200.png)
 
-## 6. Upgrade a Konvoy cluster
+## 7. Upgrade a Konvoy cluster
 
 Edit the `cluster.yaml` file to change the Kubernetes version from `1.15.2` to `1.15.3` in the 2 corresponding fields:
 ```
@@ -588,7 +587,7 @@ Check that the `Jenkins` and the `ebs-dynamic-app` apps are still accessible.
 
 The `Redis` and the `http-echo` apps aren't running anymore as they haven't been deployed using a `deployment`.
 
-## 7. Destroy a Konvoy cluster
+## 8. Destroy a Konvoy cluster
 
 When you run konvoy down, the command removes all of the AWS infrastructure resources create for the cluster, including any volumes that are backing PersistentVolumesClaims with a Delete ReclaimPolicy.
 
