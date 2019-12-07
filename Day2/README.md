@@ -490,7 +490,7 @@ EOF
 Create a file in the Volume using the following commands:
 
 ```bash
-kubectl exec -i pvpod -- /bin/sh -c "echo test > /test-portworx-volume/test"
+kubectl exec -i pvpod -- /bin/sh -c "echo 'May the force be with you' > /test-portworx-volume/test"
 ```
 
 Delete the Pod using the following command:
@@ -624,6 +624,11 @@ Go to the URL displayed to access Jenkins.
 
 Login with the user `admin` and the password `password`.
 
+Delete the Jenkins Deployment using Helm
+```bash
+helm delete jenkins --purge
+```
+
 ## 5. Deploy Apache Kafka using KUDO
 
 The Kubernetes Universal Declarative Operator (KUDO) is a highly productive toolkit for writing operators for Kubernetes. Using KUDO, you can deploy your applications, give your users the tools they need to operate it, and understand how it's behaving in their environments — all without a PhD in Kubernetes.
@@ -646,7 +651,10 @@ kubectl kudo init
 The output should be similar to:
 ```bash
 
-$KUDO_HOME has been configured at /home/centos/.kudo.
+$KUDO_HOME has been configured at /home/centos/.kudo
+✅ installing crds
+✅ preparing service accounts and other requirements for controller to run
+✅ installing kudo controller
 ```
 
 Check the status of the KUDO controller:
@@ -710,6 +718,7 @@ zk-zookeeper-0                         1/1     Running   0          21m
 zk-zookeeper-1                         1/1     Running   0          21m
 zk-zookeeper-2                         1/1     Running   0          21m
 ```
+Note: Pods are provisioned in a sequence one after the other
 
 Deploy Kafka 2.2.1 using KUDO (the version of the KUDO Kafka operator is 0.1.3):
 
@@ -1052,3 +1061,45 @@ kafka-kafka-4                          1/1     Running   0          3m15s
 kudo-kafka-consumer-6b4dd5cd59-r7svb   1/1     Running   0          33m
 kudo-kafka-generator-d655d6dff-5pztl   1/1     Running   0          33m
 ```
+## 6. Monitoring 
+
+
+In Konvoy, all the metrics are stored in a Prometheus cluster and exposed through Grafana.
+
+To access the Grafana UI, click on the `Grafana Metrics` icon on the Konvoy UI.
+
+Take a look at the different Dashboards available.
+
+![Grafana UI](../images/grafana.png)
+
+You can also access the Prometheus UI to see all the metrics available by clicking on the `Prometheus` icon on the Konvoy UI.
+
+![Prometheus UI](../images/prometheus.png)
+
+The KUDO Kafka operator comes by default the JMX Exporter agent enabled.
+
+When Kafka operator deployed with parameter `METRICS_ENABLED=true` (which defaults to `true`) then:
+
+- Each broker bootstraps with [JMX Exporter](https://github.com/prometheus/jmx_exporter) java agent exposing the metrics at `9094/metrics`
+- Adds a port named `metrics` to the Kafka Service
+- Adds a label `kubeaddons.mesosphere.io/servicemonitor: "true"` for the service monitor discovery.
+
+Run the following command to enable Kafka metrics export:
+
+```bash
+kubectl create -f https://raw.githubusercontent.com/kudobuilder/operators/master/repository/kafka/docs/v0.1/resources/service-monitor.yaml
+```
+
+In the Grafana UI, click on the + sign on the left and select `Import`.
+
+Copy the content of this [file](https://raw.githubusercontent.com/kudobuilder/operators/master/repository/kafka/docs/v0.1/resources/grafana-dashboard.json) as shown in the picture below.
+
+![Grafana import](../images/grafana-import.png)
+
+Click on `Load`.
+
+![Grafana import data source](../images/grafana-import-data-source.png)
+
+Select `Prometheus` in the `Prometheus` field and click on `Import`.
+
+![Grafana Kafka](../images/grafana-kafka.png)

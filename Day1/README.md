@@ -247,51 +247,7 @@ Note : This would take time a minute or two for the Scaling up and Downscale has
 You will see HPA scale the pods from 1 up to our configured maximum (10) until the CPU average is below our target (50%)
 
 
-
-## 4. Konvoy monitoring
-
-
-In Konvoy, all the metrics are stored in a Prometheus cluster and exposed through Grafana.
-
-To access the Grafana UI, click on the `Grafana Metrics` icon on the Konvoy UI.
-
-Take a look at the different Dashboards available.
-
-![Grafana UI](../images/grafana.png)
-
-You can also access the Prometheus UI to see all the metrics available by clicking on the `Prometheus` icon on the Konvoy UI.
-
-![Prometheus UI](../images/prometheus.png)
-
-The KUDO Kafka operator comes by default the JMX Exporter agent enabled.
-
-When Kafka operator deployed with parameter `METRICS_ENABLED=true` (which defaults to `true`) then:
-
-- Each broker bootstraps with [JMX Exporter](https://github.com/prometheus/jmx_exporter) java agent exposing the metrics at `9094/metrics`
-- Adds a port named `metrics` to the Kafka Service
-- Adds a label `kubeaddons.mesosphere.io/servicemonitor: "true"` for the service monitor discovery.
-
-Run the following command to enable Kafka metrics export:
-
-```bash
-kubectl create -f https://raw.githubusercontent.com/kudobuilder/operators/master/repository/kafka/docs/v0.1/resources/service-monitor.yaml
-```
-
-In the Grafana UI, click on the + sign on the left and select `Import`.
-
-Copy the content of this [file](https://raw.githubusercontent.com/kudobuilder/operators/master/repository/kafka/docs/v0.1/resources/grafana-dashboard.json) as shown in the picture below.
-
-![Grafana import](../images/grafana-import.png)
-
-Click on `Load`.
-
-![Grafana import data source](../images/grafana-import-data-source.png)
-
-Select `Prometheus` in the `Prometheus` field and click on `Import`.
-
-![Grafana Kafka](../images/grafana-kafka.png)
-
-## 5. Konvoy logging/debugging
+## 4. Kubernetes logging/debugging
 
 In Konvoy, all the logs are stored in an Elasticsearch cluster and exposed through Kibana.
 
@@ -309,7 +265,7 @@ Then, search for `redis`:
 
 You'll see all the logs related to the redis Pod and Service you deployed previously.
 
-### 5.1. Ingress troubleshooting.
+### 5. Ingress troubleshooting.
 
 In this section, we will leverage Konvoy logging to troubleshoot Ingress failure issue.
 
@@ -397,7 +353,7 @@ spec:
         path:  /applications/nginx/
 EOF
 ```
-![dashboard nginx](images/trafik_nginx_200.png)
+![dashboard nginx](../images/trafik_nginx_200.png)
 
 ## 6. Upgrade a Konvoy cluster
 
