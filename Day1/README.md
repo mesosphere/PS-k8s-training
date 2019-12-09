@@ -456,7 +456,7 @@ EOF
 
 ## 7. Upgrade a Konvoy cluster
 
-Edit the `cluster.yaml` file to change the Kubernetes version from `1.15.2` to `1.15.3` in the 2 corresponding fields:
+Edit the `cluster.yaml` file to change the Kubernetes version from `1.15.3` to `1.15.5` in the 2 corresponding fields:
 ```
 ...
 spec:
