@@ -6,7 +6,7 @@ During this workshop, you'll learn how to deploy Kuberenetes using Konvoy and to
 
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
-* [1. Deploy a Konvoy based k8s cluster](#1-deploy-a-konvoy-cluster)
+* [1. Deploy a Kubernetes cluster using Konvoy](#)
 * [2. Scale Masters/Workers of a Konvoy k8s cluster](#8-scale-a-konvoy-cluster)
 * [3. Scale a K8s Application using HPA ](#3-scale-a-k8s-Application)
 * [4. Konvoy monitoring](#9-konvoy-monitoring)
@@ -48,7 +48,7 @@ chmod 400 id_rsa_student#
 ssh -i id_rsa_student# centos@jumpserver-ip-address
 ```
 
-## 1. Deploy a Konvoy cluster
+## 1. Deploy a kubernetes cluster using Konvoy
 
 ### Objectives
 - Deploy a Kubernetes cluster with all the addons you need to get a production ready container orchestration platform
