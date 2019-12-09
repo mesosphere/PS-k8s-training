@@ -6,19 +6,17 @@ During this workshop, you'll learn how to deploy Kuberenetes using Konvoy and to
 
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
-* [1. Deploy a Kubernetes cluster using Konvoy](#)
-* [2. Scale Masters/Workers of a Konvoy k8s cluster](#8-scale-a-konvoy-cluster)
-* [3. Scale a K8s Application using HPA ](#3-scale-a-k8s-Application)
-* [4. Konvoy monitoring](#9-konvoy-monitoring)
-* [5. Konvoy logging/debugging](#10-konvoy-loggingdebugging)
-* [6. Upgrade a Konvoy cluster](#11-upgrade-a-konvoy-cluster)
-* [7. Destroy a Konvoy cluster](#12-destroy-a-konvoy-cluster)
+* [1. Deploy a Kubernetes cluster using Konvoy](#Deploy-a-Kubernetes-cluster-using-Konvoy)
+* [2. Deploy a Custom Resource Definition](#Deploy-a-Custom-Resource-Definition)
+* [3. Scale Masters/Workers of a k8s cluster](#Scale-Masters/Workers-of-a-k8s-cluster)
+* [4. Scale a K8s Application using HPA](#Scale-a-k8s-Application-using-HPA)
+* [5. Konvoy logging/debugging](#konvoy-loggingdebugging)
+* [5. Ingress troubleshooting](#Ingress-trroubleshooting)
+* [6. Upgrade a Kubernetes cluster using Konvoy](#Upgrade-a-kubernetes-cluster-using-Konvoy)
 
 ## Prerequisites
 
 You need either a Linux, MacOS or a Windows laptop.
-
-
 
 ## Jumpserver
 
@@ -454,7 +452,7 @@ EOF
 ```
 ![dashboard nginx](../images/trafik_nginx_200.png)
 
-## 7. Upgrade a Konvoy cluster
+## 7. Upgrade a Kubernetes cluster using Konvoy
 
 Edit the `cluster.yaml` file to change the Kubernetes version from `1.15.3` to `1.15.5` in the 2 corresponding fields:
 ```
@@ -610,16 +608,3 @@ Check that the `Jenkins` and the `ebs-dynamic-app` apps are still accessible.
 
 The `Redis` and the `http-echo` apps aren't running anymore as they haven't been deployed using a `deployment`.
 
-## 8. Destroy a Konvoy cluster
-
-When you run konvoy down, the command removes all of the AWS infrastructure resources create for the cluster, including any volumes that are backing PersistentVolumesClaims with a Delete ReclaimPolicy.
-
-To completely remove Konvoy cluster resources:
-
-Change to the directory that contains your cluster’s state files, then run the following command:
-```
-konvoy down --yes
-```
-The konvoy down command then begins removing cluster resources by deleting load balancers, security groups and volumes. It deletes these resources using the AWS API to ensure they are deleted quickly.
-
-After konvoy down removes these resources, it uses Terraform to delete the resources created by the konvoy up command and Terraform provisioning.

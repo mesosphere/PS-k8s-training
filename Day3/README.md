@@ -656,3 +656,18 @@ http://a32c15819094e4a14a920331501f12b0-1882016049.us-west-2.elb.amazonaws.com/p
 ![Istio](../images/istio.png)
 
 
+
+## 8. Destroy a Konvoy cluster
+
+When you run konvoy down, the command removes all of the AWS infrastructure resources create for the cluster, including any volumes that are backing PersistentVolumesClaims with a Delete ReclaimPolicy.
+
+To completely remove Konvoy cluster resources:
+
+Change to the directory that contains your cluster’s state files, then run the following command:
+```
+konvoy down --yes
+```
+The konvoy down command then begins removing cluster resources by deleting load balancers, security groups and volumes. It deletes these resources using the AWS API to ensure they are deleted quickly.
+
+After konvoy down removes these resources, it uses Terraform to delete the resources created by the konvoy up command and Terraform provisioning.
+
